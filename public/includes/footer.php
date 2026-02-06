@@ -12,13 +12,13 @@
         </div>
         <div>
             <h4>Quick Links</h4>
-            <p><a href="/about.php">About</a></p>
-            <p><a href="/programs.php">Programs</a></p>
-            <p><a href="/impact.php">Impact</a></p>
-            <p><a href="/blog/index.php">Blog</a></p>
+            <p><a href="<?php echo e(base_url('about.php')); ?>">About</a></p>
+            <p><a href="<?php echo e(base_url('programs.php')); ?>">Programs</a></p>
+            <p><a href="<?php echo e(base_url('impact.php')); ?>">Impact</a></p>
+            <p><a href="<?php echo e(base_url('blog/index.php')); ?>">Blog</a></p>
         </div>
     </div>
 </footer>
-<script src="/assets/js/main.js"></script>
+<script src="<?php echo e(base_url('assets/js/main.js')); ?>"></script>
 </body>
 </html>

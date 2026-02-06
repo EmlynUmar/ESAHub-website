@@ -18,8 +18,8 @@ $posts = $stmt->fetchAll();
             <h2>Welcome, <?php echo e($_SESSION['admin_username'] ?? 'Admin'); ?></h2>
             <p>Manage your blog posts and content updates.</p>
         </div>
-        <a class="btn btn-primary" href="/admin/create-post.php">Create New Post</a>
-        <a class="btn btn-outline" href="/admin/logout.php">Logout</a>
+        <a class="btn btn-primary" href="<?php echo e(base_url('admin/create-post.php')); ?>">Create New Post</a>
+        <a class="btn btn-outline" href="<?php echo e(base_url('admin/logout.php')); ?>">Logout</a>
 
         <table class="table">
             <thead>
@@ -46,9 +46,9 @@ $posts = $stmt->fetchAll();
                             </td>
                             <td><?php echo e(date('M j, Y', strtotime($post['created_at']))); ?></td>
                             <td>
-                                <a href="/admin/edit-post.php?id=<?php echo e((string) $post['id']); ?>">Edit</a>
+                                <a href="<?php echo e(base_url('admin/edit-post.php?id=' . (string) $post['id'])); ?>">Edit</a>
                                 |
-                                <form method="post" action="/admin/delete-post.php" style="display:inline;">
+                                <form method="post" action="<?php echo e(base_url('admin/delete-post.php')); ?>" style="display:inline;">
                                     <input type="hidden" name="csrf_token" value="<?php echo e(csrf_token()); ?>">
                                     <input type="hidden" name="id" value="<?php echo e((string) $post['id']); ?>">
                                     <button type="submit" style="background:none;border:none;color:inherit;cursor:pointer;" onclick="return confirm('Delete this post?');">Delete</button>

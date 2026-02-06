@@ -4,7 +4,7 @@ require_once __DIR__ . '/../includes/db.php';
 
 $slug = trim($_GET['slug'] ?? '');
 if ($slug === '') {
-    header('Location: /blog/index.php');
+    header('Location: ' . base_url('blog/index.php'));
     exit;
 }
 
@@ -32,14 +32,14 @@ require_once __DIR__ . '/../includes/header.php';
                 <h2>Post Not Found</h2>
                 <p>The post you are looking for does not exist or has been unpublished.</p>
             </div>
-            <a class="btn btn-primary" href="/blog/index.php">Back to Blog</a>
+            <a class="btn btn-primary" href="<?php echo e(base_url('blog/index.php')); ?>">Back to Blog</a>
         <?php else: ?>
             <div class="section-title">
                 <h2><?php echo e($post['title']); ?></h2>
                 <p>Published on <?php echo e(date('F j, Y', strtotime($post['created_at']))); ?></p>
             </div>
             <?php if (!empty($post['featured_image'])): ?>
-                <img src="/assets/images/uploads/<?php echo e($post['featured_image']); ?>" alt="<?php echo e($post['title']); ?>">
+                <img src="<?php echo e(base_url('assets/images/uploads/' . $post['featured_image'])); ?>" alt="<?php echo e($post['title']); ?>">
             <?php endif; ?>
             <div style="margin-top: 1.5rem;">
                 <?php echo nl2br(e($post['content'])); ?>

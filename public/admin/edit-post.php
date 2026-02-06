@@ -6,7 +6,7 @@ require_admin();
 
 $id = (int) ($_GET['id'] ?? 0);
 if ($id <= 0) {
-    header('Location: /admin/dashboard.php');
+    header('Location: ' . base_url('admin/dashboard.php'));
     exit;
 }
 
@@ -15,7 +15,7 @@ $stmt->execute([$id]);
 $post = $stmt->fetch();
 
 if (!$post) {
-    header('Location: /admin/dashboard.php');
+    header('Location: ' . base_url('admin/dashboard.php'));
     exit;
 }
 
@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $stmt = $pdo->prepare('UPDATE posts SET title = ?, slug = ?, content = ?, featured_image = ?, status = ?, updated_at = NOW() WHERE id = ?');
             $stmt->execute([$title, $slug, $content, $image_name, $status, $id]);
-            header('Location: /admin/dashboard.php');
+            header('Location: ' . base_url('admin/dashboard.php'));
             exit;
         }
     }

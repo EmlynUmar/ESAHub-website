@@ -25,14 +25,14 @@ $posts = $stmt->fetchAll();
                 <?php foreach ($posts as $post): ?>
                     <article class="blog-card">
                         <?php if (!empty($post['featured_image'])): ?>
-                            <img src="/assets/images/uploads/<?php echo e($post['featured_image']); ?>" alt="<?php echo e($post['title']); ?>">
+                            <img src="<?php echo e(base_url('assets/images/uploads/' . $post['featured_image'])); ?>" alt="<?php echo e($post['title']); ?>">
                         <?php else: ?>
-                            <img src="/assets/images/hero.svg" alt="ESAHub Africa">
+                            <img src="<?php echo e(base_url('assets/images/hero.svg')); ?>" alt="ESAHub Africa">
                         <?php endif; ?>
                         <div>
                             <h3><?php echo e($post['title']); ?></h3>
                             <p><?php echo e(mb_strimwidth(strip_tags($post['content']), 0, 160, '...')); ?></p>
-                            <a class="btn btn-primary" href="/blog/<?php echo e($post['slug']); ?>">Read More</a>
+                            <a class="btn btn-primary" href="<?php echo e(base_url('blog/' . $post['slug'])); ?>">Read More</a>
                         </div>
                     </article>
                 <?php endforeach; ?>

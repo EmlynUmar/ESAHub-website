@@ -4,7 +4,7 @@ require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/db.php';
 
 if (is_admin_logged_in()) {
-    header('Location: /admin/dashboard.php');
+    header('Location: ' . base_url('admin/dashboard.php'));
     exit;
 }
 
@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($admin && password_verify($password, $admin['password_hash'])) {
             $_SESSION['admin_id'] = $admin['id'];
             $_SESSION['admin_username'] = $admin['username'];
-            header('Location: /admin/dashboard.php');
+            header('Location: ' . base_url('admin/dashboard.php'));
             exit;
         }
 
