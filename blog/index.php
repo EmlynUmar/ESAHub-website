@@ -24,6 +24,7 @@ $posts = get_blog_posts();
                     <?php $excerpt = !empty($post['excerpt']) ? $post['excerpt'] : $post['content']; ?>
                     <article class="blog-card">
                         <?php if (!empty($post['featured_image'])): ?>
+<<<<<<< HEAD:blog/index.php
                             <img src="<?= e(url('assets/images/uploads/' . $post['featured_image'])) ?>" alt="<?= e($post['title']) ?>">
                         <?php else: ?>
                             <img src="<?= e(url('assets/images/hero.svg')) ?>" alt="ESAHub Africa">
@@ -32,6 +33,16 @@ $posts = get_blog_posts();
                             <h3><?= e($post['title']) ?></h3>
                             <p><?= e(mb_strimwidth(strip_tags($excerpt), 0, 160, '...')) ?></p>
                             <a class="btn btn-primary" href="<?= e(url('blog/post.php?slug=' . urlencode((string) ($post['slug'] ?? '')))) ?>">Read More</a>
+=======
+                            <img src="<?php echo e(base_url('assets/images/uploads/' . $post['featured_image'])); ?>" alt="<?php echo e($post['title']); ?>">
+                        <?php else: ?>
+                            <img src="<?php echo e(base_url('assets/images/hero.svg')); ?>" alt="ESAHub Africa">
+                        <?php endif; ?>
+                        <div>
+                            <h3><?php echo e($post['title']); ?></h3>
+                            <p><?php echo e(mb_strimwidth(strip_tags($post['content']), 0, 160, '...')); ?></p>
+                            <a class="btn btn-primary" href="<?php echo e(base_url('blog/' . $post['slug'])); ?>">Read More</a>
+>>>>>>> 2838c9eab5cf35e5591d27b4abb2d047e2be9945:public/blog/index.php
                         </div>
                     </article>
                 <?php endforeach; ?>

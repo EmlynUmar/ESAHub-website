@@ -1,11 +1,49 @@
 <?php
 $page_title = 'Contact | ESAHub Africa';
-require_once __DIR__ . '/includes/header.php';
-
 $success_message = '';
 $error_message = '';
 
+// Support running from /public or from a project root that points to /public.
+$public_root = __DIR__;
+if (!is_dir($public_root . '/includes') && is_dir($public_root . '/public/includes')) {
+    $public_root = $public_root . '/public';
+}
+
+require_once $public_root . '/includes/header.php';
+
+// PHPMailer (manual install required)
+// Place PHPMailer in: public/vendor/PHPMailer/src/
+// - public/vendor/PHPMailer/src/PHPMailer.php
+// - public/vendor/PHPMailer/src/SMTP.php
+// - public/vendor/PHPMailer/src/Exception.php
+$phpmailer_candidates = [
+    $public_root . '/vendor/PHPMailer/src',
+    __DIR__ . '/vendor/PHPMailer/src',
+    __DIR__ . '/public/vendor/PHPMailer/src',
+];
+
+$phpmailer_loaded = false;
+foreach ($phpmailer_candidates as $candidate) {
+    if (is_file($candidate . '/PHPMailer.php') && is_file($candidate . '/SMTP.php') && is_file($candidate . '/Exception.php')) {
+        require_once $candidate . '/Exception.php';
+        require_once $candidate . '/PHPMailer.php';
+        require_once $candidate . '/SMTP.php';
+        $phpmailer_loaded = true;
+        break;
+    }
+}
+
+if (!$phpmailer_loaded) {
+    $error_message = 'PHPMailer is missing. Please add it to public/vendor/PHPMailer/src/.';
+}
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!$phpmailer_loaded) {
+        $error_message = 'Email service is not configured yet. Please try again later.';
+    } else {
     $token = $_POST['csrf_token'] ?? '';
     if (!verify_csrf($token)) {
         $error_message = 'Invalid form submission. Please try again.';
@@ -24,12 +62,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $body = "Name: {$name}\nEmail: {$email}\nPhone: {$phone}\n\nMessage:\n{$message}";
             $headers = "From: {$name} <{$email}>";
 
-            if (mail(CONTACT_EMAIL, $subject, $body, $headers)) {
+            try {
+                $mail = new PHPMailer(true);
+                $mail->isSMTP();
+                $mail->Host = SMTP_HOST;
+                $mail->SMTPAuth = true;
+                $mail->Username = SMTP_USER;
+                $mail->Password = SMTP_PASS;
+                $mail->SMTPSecure = SMTP_ENCRYPTION;
+                $mail->Port = SMTP_PORT;
+
+                $mail->setFrom(SMTP_FROM, SMTP_FROM_NAME);
+                $mail->addAddress(CONTACT_EMAIL, 'ESAHub Africa');
+                $mail->addReplyTo($email, $name);
+
+                $mail->isHTML(false);
+                $mail->Subject = $subject;
+                $mail->Body = $body;
+
+                $mail->send();
                 $success_message = 'Thank you for reaching out. We will respond shortly.';
-            } else {
+            } catch (Exception $e) {
                 $error_message = 'Unable to send your message at this time. Please try again later.';
             }
         }
+    }
     }
 }
 ?>

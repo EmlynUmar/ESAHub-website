@@ -6,7 +6,11 @@ require_admin();
 
 $id = (int) ($_GET['id'] ?? 0);
 if ($id <= 0) {
+<<<<<<< HEAD:admin/edit-post.php
     header('Location: ' . url('admin/dashboard.php'));
+=======
+    header('Location: ' . base_url('admin/dashboard.php'));
+>>>>>>> 2838c9eab5cf35e5591d27b4abb2d047e2be9945:public/admin/edit-post.php
     exit;
 }
 
@@ -15,7 +19,11 @@ $stmt->execute([$id]);
 $post = $stmt->fetch();
 
 if (!$post) {
+<<<<<<< HEAD:admin/edit-post.php
     header('Location: ' . url('admin/dashboard.php'));
+=======
+    header('Location: ' . base_url('admin/dashboard.php'));
+>>>>>>> 2838c9eab5cf35e5591d27b4abb2d047e2be9945:public/admin/edit-post.php
     exit;
 }
 
@@ -61,7 +69,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $stmt = $pdo->prepare('UPDATE posts SET title = ?, slug = ?, content = ?, featured_image = ?, status = ?, updated_at = NOW() WHERE id = ?');
             $stmt->execute([$title, $slug, $content, $image_name, $status, $id]);
+<<<<<<< HEAD:admin/edit-post.php
             header('Location: ' . url('admin/dashboard.php'));
+=======
+            header('Location: ' . base_url('admin/dashboard.php'));
+>>>>>>> 2838c9eab5cf35e5591d27b4abb2d047e2be9945:public/admin/edit-post.php
             exit;
         }
     }

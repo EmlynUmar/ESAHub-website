@@ -46,7 +46,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $stmt = $pdo->prepare('INSERT INTO posts (title, slug, content, featured_image, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, NOW(), NOW())');
             $stmt->execute([$title, $slug, $content, $image_name, $status]);
+<<<<<<< HEAD:admin/create-post.php
             header('Location: ' . url('admin/dashboard.php'));
+=======
+            header('Location: ' . base_url('admin/dashboard.php'));
+>>>>>>> 2838c9eab5cf35e5591d27b4abb2d047e2be9945:public/admin/create-post.php
             exit;
         }
     }

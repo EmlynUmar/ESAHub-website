@@ -4,7 +4,11 @@ require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/db.php';
 
 if (is_admin_logged_in()) {
+<<<<<<< HEAD:admin/login.php
     header('Location: ' . url('admin/dashboard.php'));
+=======
+    header('Location: ' . base_url('admin/dashboard.php'));
+>>>>>>> 2838c9eab5cf35e5591d27b4abb2d047e2be9945:public/admin/login.php
     exit;
 }
 
@@ -25,7 +29,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($admin && password_verify($password, $admin['password_hash'])) {
             $_SESSION['admin_id'] = $admin['id'];
             $_SESSION['admin_username'] = $admin['username'];
+<<<<<<< HEAD:admin/login.php
             header('Location: ' . url('admin/dashboard.php'));
+=======
+            header('Location: ' . base_url('admin/dashboard.php'));
+>>>>>>> 2838c9eab5cf35e5591d27b4abb2d047e2be9945:public/admin/login.php
             exit;
         }
 
