@@ -16,17 +16,18 @@ elseif ($sort === 'popular') { $order = 'p.updated_at DESC'; }
 
 try {
     if ($category !== '') {
-        $stmt = $pdo->prepare('SELECT p.id,p.title,p.slug,p.summary,p.subtitle,p.delivery_mode,p.duration,p.price_label,p.featured_image,c.name AS category_name FROM programs p JOIN categories c ON c.id = p.category_id WHERE p.status = ? AND p.is_active = 1 AND c.is_active = 1 AND c.slug = ? ORDER BY ' . $order);
+        $stmt = $pdo->prepare('SELECT p.id,p.title,p.slug,p.summary,p.subtitle,p.delivery_mode,p.duration,p.price_label,p.featured_image,p.registration_link,c.name AS category_name FROM programs p JOIN categories c ON c.id = p.category_id WHERE p.status = ? AND p.is_active = 1 AND c.is_active = 1 AND c.slug = ? ORDER BY ' . $order);
         $stmt->execute(['published', $category]);
     } else {
-        $stmt = $pdo->prepare('SELECT p.id,p.title,p.slug,p.summary,p.subtitle,p.delivery_mode,p.duration,p.price_label,p.featured_image,c.name AS category_name FROM programs p JOIN categories c ON c.id = p.category_id WHERE p.status = ? AND p.is_active = 1 AND c.is_active = 1 ORDER BY ' . $order . ' LIMIT 100');
+        $stmt = $pdo->prepare('SELECT p.id,p.title,p.slug,p.summary,p.subtitle,p.delivery_mode,p.duration,p.price_label,p.featured_image,p.registration_link,c.name AS category_name FROM programs p JOIN categories c ON c.id = p.category_id WHERE p.status = ? AND p.is_active = 1 AND c.is_active = 1 ORDER BY ' . $order . ' LIMIT 100');
         $stmt->execute(['published']);
     }
 
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
     echo json_encode(['programs' => $rows]);
 } catch (Throwable $e) {
-    echo json_encode(['error' => 'query', 'message' => $e->getMessage()]);
+    error_log('ajax get_programs error: ' . $e->getMessage());
+    echo json_encode(['error' => 'query', 'programs' => []]);
 }
 
 ?>

@@ -4,16 +4,8 @@ require_once __DIR__ . '/../../includes/config.php';
 require_once __DIR__ . '/../../includes/db.php';
 require_admin();
 
-// Determine which table to use
-$table = 'posts'; // Default to posts table
-try {
-    $check = $pdo->query("SHOW TABLES LIKE 'posts'");
-    if (!$check || !$check->fetch()) {
-        $table = 'blog_posts';
-    }
-} catch (Throwable $e) {
-    $table = 'blog_posts';
-}
+// Use blog_posts table
+$table = 'blog_posts';
 
 $posts = [];
 try {
@@ -75,8 +67,12 @@ require_once __DIR__ . '/../../includes/header.php';
                                 </td>
                                 <td><?= e(date('M j, Y', strtotime((string) ($post['created_at'] ?? '')))) ?></td>
                                 <td>
-                                    <a href="<?= e(url('admin/edit-post.php?id=' . $post['id'])) ?>" style="color:var(--accent); font-weight:600; margin-right:1rem;">Edit</a>
-                                    <a href="<?= e(url('admin/blog/delete.php?id=' . $post['id'])) ?>" style="color:#c84e3a; font-weight:600; text-decoration:none;" onclick="return confirm('Delete this post?');">Delete</a>
+                                    <a href="<?= e(url('admin/edit-post.php?id=' . $post['id'])) ?>" style="color:var(--accent); font-weight:600; margin-right:0.75rem;">Edit</a>
+                                    <form method="post" action="<?= e(url('admin/blog/delete.php')) ?>" style="display:inline;" onsubmit="return confirm('Delete this post?');">
+                                        <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
+                                        <input type="hidden" name="id" value="<?= (int)$post['id'] ?>">
+                                        <button type="submit" style="background:none;border:none;color:#c84e3a;font-weight:600;cursor:pointer;padding:0;">Delete</button>
+                                    </form>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

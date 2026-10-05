@@ -15,11 +15,13 @@ if (!function_exists('db')) {
     }
 }
 
-function url(string $path = ''): string
-{
-    $base = rtrim(BASE_URL, '/');
-    $path = ltrim($path, '/');
-    return $path === '' ? $base . '/' : $base . '/' . $path;
+if (!function_exists('url')) {
+    function url(string $path = ''): string
+    {
+        $base = rtrim(BASE_URL, '/');
+        $path = ltrim($path, '/');
+        return $path === '' ? $base . '/' : $base . '/' . $path;
+    }
 }
 
 function get_settings(): array
@@ -57,30 +59,12 @@ function get_blog_posts(): array
         return [];
     }
 
-    $tables = ['posts', 'blog_posts'];
-
-    foreach ($tables as $table) {
-        try {
-            $check = $pdo->query("SHOW TABLES LIKE '" . str_replace("'", "\\'", $table) . "'");
-            if ($check && $check->fetch()) {
-                $columns = $pdo->query("SHOW COLUMNS FROM `" . str_replace('`', '', $table) . "`")->fetchAll(PDO::FETCH_COLUMN);
-                $hasExcerpt = in_array('excerpt', $columns, true);
-
-                $select = $hasExcerpt
-                    ? "SELECT id, title, slug, excerpt, content, featured_image, status, created_at, updated_at FROM `" . str_replace('`', '', $table) . "` WHERE status = 'published' ORDER BY created_at DESC"
-                    : "SELECT id, title, slug, content AS excerpt, content, featured_image, status, created_at, updated_at FROM `" . str_replace('`', '', $table) . "` WHERE status = 'published' ORDER BY created_at DESC";
-
-                $rows = $pdo->query($select)->fetchAll(PDO::FETCH_ASSOC);
-                if (!empty($rows)) {
-                    return $rows;
-                }
-            }
-        } catch (Throwable $e) {
-            continue;
-        }
+    try {
+        $stmt = $pdo->query("SELECT id, title, slug, excerpt, content, featured_image, status, created_at, updated_at FROM blog_posts WHERE status = 'published' ORDER BY created_at DESC");
+        return $stmt ? $stmt->fetchAll(PDO::FETCH_ASSOC) : [];
+    } catch (Throwable $e) {
+        return [];
     }
-
-    return [];
 }
 
 function get_blog_post_by_slug(string $slug): ?array
@@ -90,23 +74,12 @@ function get_blog_post_by_slug(string $slug): ?array
         return null;
     }
 
-    $tables = ['posts', 'blog_posts'];
-
-    foreach ($tables as $table) {
-        try {
-            $check = $pdo->query("SHOW TABLES LIKE '" . str_replace("'", "\\'", $table) . "'");
-            if ($check && $check->fetch()) {
-                $stmt = $pdo->prepare("SELECT * FROM `" . str_replace('`', '', $table) . "` WHERE slug = ? AND status = 'published' LIMIT 1");
-                $stmt->execute([$slug]);
-                $post = $stmt->fetch(PDO::FETCH_ASSOC);
-                if ($post) {
-                    return $post;
-                }
-            }
-        } catch (Throwable $e) {
-            continue;
-        }
+    try {
+        $stmt = $pdo->prepare("SELECT * FROM blog_posts WHERE slug = ? AND status = 'published' LIMIT 1");
+        $stmt->execute([$slug]);
+        $post = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $post ?: null;
+    } catch (Throwable $e) {
+        return null;
     }
-
-    return null;
 }

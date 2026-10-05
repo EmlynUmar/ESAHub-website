@@ -7,17 +7,6 @@ CREATE TABLE admins (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE posts (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    title VARCHAR(200) NOT NULL,
-    slug VARCHAR(200) NOT NULL UNIQUE,
-    content TEXT NOT NULL,
-    featured_image VARCHAR(255) DEFAULT NULL,
-    status ENUM('draft', 'published') NOT NULL DEFAULT 'draft',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-
 CREATE TABLE categories (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(120) NOT NULL,
@@ -51,7 +40,7 @@ CREATE TABLE programs (
 -- Sample admin user (replace password after first login)
 -- Password is: Admin@123 (change after first login)
 INSERT INTO admins (username, password_hash)
-VALUES ('admin', '$2y$12$vwqkbW0rdoa0atxXHmJcMeZZtrtm5uY5Ij.ycLROQ.JXzsTiE/l.G');
+VALUES ('admin', '$2y$10$jZBY4ph2c1Edo6Y7ePLnIuc97JSgt5nt1XFDrerhFtlFCthd/DUq6');
 
 INSERT INTO categories (name, slug, is_active) VALUES
 ('Career Development', 'career-development', 1),
@@ -101,3 +90,15 @@ CREATE TABLE IF NOT EXISTS blog_posts (
 INSERT INTO blog_posts (title, slug, excerpt, content, status) VALUES
 ('Welcome to ESAHub','welcome-to-esahub','An introduction to ESAHub Africa and our mission.','Welcome to ESAHub Africa — we deliver practical education and support for communities.', 'published')
 ON DUPLICATE KEY UPDATE title = VALUES(title);
+
+-- Contact inquiries and booking messages table
+CREATE TABLE IF NOT EXISTS inquiries (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(150) NOT NULL,
+  email VARCHAR(150) NOT NULL,
+  phone VARCHAR(50) NULL,
+  message TEXT NOT NULL,
+  status ENUM('unread', 'read', 'archived') NOT NULL DEFAULT 'unread',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+

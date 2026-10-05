@@ -13,12 +13,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $title = trim($_POST['title'] ?? '');
         $content = trim($_POST['content'] ?? '');
+        $excerpt = trim($_POST['excerpt'] ?? '');
         $status = $_POST['status'] ?? 'draft';
         $slug = generate_slug($title);
 
         if ($title === '' || $content === '') {
             $error_message = 'Title and content are required.';
         } else {
+            if ($excerpt === '') {
+                $excerpt = mb_strimwidth(strip_tags($content), 0, 160, '...');
+            }
+
             $image_name = '';
             if (!empty($_FILES['featured_image']['name'])) {
                 $allowed = ['jpg', 'jpeg', 'png', 'webp'];
@@ -37,20 +42,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if ($error_message === '') {
-            $slug_check = $pdo->prepare('SELECT COUNT(*) FROM posts WHERE slug = ?');
+            $slug_check = $pdo->prepare('SELECT COUNT(*) FROM blog_posts WHERE slug = ?');
             $slug_check->execute([$slug]);
             $count = (int) $slug_check->fetchColumn();
             if ($count > 0) {
                 $slug .= '-' . ($count + 1);
             }
 
-            $stmt = $pdo->prepare('INSERT INTO posts (title, slug, content, featured_image, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, NOW(), NOW())');
-            $stmt->execute([$title, $slug, $content, $image_name, $status]);
-<<<<<<< HEAD:admin/create-post.php
-            header('Location: ' . url('admin/dashboard.php'));
-=======
-            header('Location: ' . base_url('admin/dashboard.php'));
->>>>>>> 2838c9eab5cf35e5591d27b4abb2d047e2be9945:public/admin/create-post.php
+            $stmt = $pdo->prepare('INSERT INTO blog_posts (title, slug, excerpt, content, featured_image, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())');
+            $stmt->execute([$title, $slug, $excerpt, $content, $image_name, $status]);
+            header('Location: ' . base_url('admin/blog/index.php'));
             exit;
         }
     }
@@ -79,6 +80,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="form-group">
                 <label for="content">Content</label>
                 <textarea id="content" name="content" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="excerpt">Excerpt <small style="color:#666;">(optional summary for cards)</small></label>
+                <textarea id="excerpt" name="excerpt" rows="2" placeholder="Brief summary (auto-generated from content if left blank)"></textarea>
             </div>
             <div class="form-group">
                 <label for="featured_image">Featured Image</label>

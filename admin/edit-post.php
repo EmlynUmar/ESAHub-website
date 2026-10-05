@@ -6,24 +6,16 @@ require_admin();
 
 $id = (int) ($_GET['id'] ?? 0);
 if ($id <= 0) {
-<<<<<<< HEAD:admin/edit-post.php
-    header('Location: ' . url('admin/dashboard.php'));
-=======
-    header('Location: ' . base_url('admin/dashboard.php'));
->>>>>>> 2838c9eab5cf35e5591d27b4abb2d047e2be9945:public/admin/edit-post.php
+    header('Location: ' . base_url('admin/blog/index.php'));
     exit;
 }
 
-$stmt = $pdo->prepare('SELECT * FROM posts WHERE id = ?');
+$stmt = $pdo->prepare('SELECT * FROM blog_posts WHERE id = ?');
 $stmt->execute([$id]);
 $post = $stmt->fetch();
 
 if (!$post) {
-<<<<<<< HEAD:admin/edit-post.php
-    header('Location: ' . url('admin/dashboard.php'));
-=======
-    header('Location: ' . base_url('admin/dashboard.php'));
->>>>>>> 2838c9eab5cf35e5591d27b4abb2d047e2be9945:public/admin/edit-post.php
+    header('Location: ' . base_url('admin/blog/index.php'));
     exit;
 }
 
@@ -36,12 +28,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $title = trim($_POST['title'] ?? '');
         $content = trim($_POST['content'] ?? '');
+        $excerpt = trim($_POST['excerpt'] ?? '');
         $status = $_POST['status'] ?? 'draft';
         $slug = generate_slug($title);
 
         if ($title === '' || $content === '') {
             $error_message = 'Title and content are required.';
         } else {
+            if ($excerpt === '') {
+                $excerpt = mb_strimwidth(strip_tags($content), 0, 160, '...');
+            }
+
             $image_name = $post['featured_image'] ?? '';
             if (!empty($_FILES['featured_image']['name'])) {
                 $allowed = ['jpg', 'jpeg', 'png', 'webp'];
@@ -60,20 +57,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if ($error_message === '') {
-            $slug_check = $pdo->prepare('SELECT COUNT(*) FROM posts WHERE slug = ? AND id != ?');
+            $slug_check = $pdo->prepare('SELECT COUNT(*) FROM blog_posts WHERE slug = ? AND id != ?');
             $slug_check->execute([$slug, $id]);
             $count = (int) $slug_check->fetchColumn();
             if ($count > 0) {
                 $slug .= '-' . ($count + 1);
             }
 
-            $stmt = $pdo->prepare('UPDATE posts SET title = ?, slug = ?, content = ?, featured_image = ?, status = ?, updated_at = NOW() WHERE id = ?');
-            $stmt->execute([$title, $slug, $content, $image_name, $status, $id]);
-<<<<<<< HEAD:admin/edit-post.php
-            header('Location: ' . url('admin/dashboard.php'));
-=======
-            header('Location: ' . base_url('admin/dashboard.php'));
->>>>>>> 2838c9eab5cf35e5591d27b4abb2d047e2be9945:public/admin/edit-post.php
+            $stmt = $pdo->prepare('UPDATE blog_posts SET title = ?, slug = ?, excerpt = ?, content = ?, featured_image = ?, status = ?, updated_at = NOW() WHERE id = ?');
+            $stmt->execute([$title, $slug, $excerpt, $content, $image_name, $status, $id]);
+            header('Location: ' . base_url('admin/blog/index.php'));
             exit;
         }
     }
@@ -104,10 +97,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <textarea id="content" name="content" required><?php echo e($post['content']); ?></textarea>
             </div>
             <div class="form-group">
+                <label for="excerpt">Excerpt <small style="color:#666;">(optional summary for cards)</small></label>
+                <textarea id="excerpt" name="excerpt" rows="2"><?php echo e($post['excerpt'] ?? ''); ?></textarea>
+            </div>
+            <div class="form-group">
                 <label for="featured_image">Featured Image</label>
                 <input id="featured_image" name="featured_image" type="file" accept="image/*">
                 <?php if (!empty($post['featured_image'])): ?>
-                    <p>Current image: <?php echo e($post['featured_image']); ?></p>
+                    <p style="margin-top:0.5rem;font-size:0.9rem;">Current image: <?php echo e($post['featured_image']); ?></p>
                 <?php endif; ?>
             </div>
             <div class="form-group">

@@ -8,19 +8,14 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 define('APP_NAME', 'ESAHub Africa');
-<<<<<<< HEAD:includes/config.php
-define('BASE_URL', '/ESAHub-website/');
-=======
-
 // Base URL relative to the web root (auto-detected for local subfolders).
-$public_dir = str_replace('\\', '/', realpath(__DIR__ . '/..'));
-$doc_root = isset($_SERVER['DOCUMENT_ROOT']) ? str_replace('\\', '/', realpath($_SERVER['DOCUMENT_ROOT'])) : '';
+$public_dir = str_replace('\\', '/', (string) realpath(__DIR__ . '/..'));
+$doc_root = isset($_SERVER['DOCUMENT_ROOT']) ? str_replace('\\', '/', (string) realpath($_SERVER['DOCUMENT_ROOT'])) : '';
 $base_url = '';
 if ($doc_root && strpos($public_dir, $doc_root) === 0) {
     $base_url = substr($public_dir, strlen($doc_root));
 }
 define('BASE_URL', $base_url ?: '');
->>>>>>> 2838c9eab5cf35e5591d27b4abb2d047e2be9945:public/includes/config.php
 
 define('CONTACT_PHONE', '+2347013596333');
 
@@ -63,11 +58,7 @@ function base_url(string $path = ''): string
 function require_admin(): void
 {
     if (!is_admin_logged_in()) {
-<<<<<<< HEAD:includes/config.php
-        header('Location: ' . rtrim(BASE_URL, '/') . '/admin/login.php');
-=======
         header('Location: ' . base_url('admin/login.php'));
->>>>>>> 2838c9eab5cf35e5591d27b4abb2d047e2be9945:public/includes/config.php
         exit;
     }
 }

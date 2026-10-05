@@ -42,15 +42,24 @@ if ($selectedCategory !== '') {
 }
 
 require_once __DIR__ . '/includes/navbar.php';
-
 ?>
+<section class="section">
     <div class="container">
         <div class="section-title">
             <h2>Programs</h2>
             <p>Explore our categories and discover practical learning and innovation opportunities.</p>
         </div>
 
-        <div class="main" style="margin-top:1.5rem;">
+        <div class="category-filter-bar" style="display:flex;flex-wrap:wrap;gap:0.5rem;margin:1.5rem 0 1rem 0;">
+            <a href="<?= e(url('programs.php')) ?>" class="category-item btn btn-outline btn-small <?= $selectedCategory === '' ? 'active' : '' ?>" data-slug="" style="<?= $selectedCategory === '' ? 'background:var(--primary);color:#fff;' : '' ?>">All Programs</a>
+            <?php foreach ($categories as $cat): ?>
+                <a href="<?= e(url('programs.php?category=' . urlencode($cat['slug']))) ?>" class="category-item btn btn-outline btn-small <?= $selectedCategory === $cat['slug'] ? 'active' : '' ?>" data-slug="<?= e($cat['slug']) ?>" style="<?= $selectedCategory === $cat['slug'] ? 'background:var(--primary);color:#fff;' : '' ?>">
+                    <?= e($cat['name']) ?>
+                </a>
+            <?php endforeach; ?>
+        </div>
+
+        <div class="main" style="margin-top:1rem;">
             <?php if ($selected && !empty($selected['description'])): ?>
                 <div class="card" style="margin-bottom:1rem;">
                     <?php if (!empty($selected['featured_image'])): ?>

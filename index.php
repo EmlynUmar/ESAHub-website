@@ -124,7 +124,7 @@ $service2Description = $settings['service_2_description'] ?? 'Get practical guid
         <div class="card-grid">
             <?php foreach($posts as $post): ?>
             <article class="card">
-                <h3><a href="<?= e(url('/blog/view.php')) ?>?slug=<?= e($post['slug']) ?>"><?= e($post['title']) ?></a></h3>
+                <h3><a href="<?= e(url('/blog/post.php')) ?>?slug=<?= e($post['slug']) ?>"><?= e($post['title']) ?></a></h3>
                 <p><?= e($post['excerpt'] ?: 'Read latest updates from ESAHub Africa.') ?></p>
             </article>
             <?php endforeach; ?>

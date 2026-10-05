@@ -32,6 +32,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     programList.innerHTML = items.map(p => {
       const imageHtml = p.featured_image ? `<img src="${escapeHtml('assets/images/uploads/' + p.featured_image)}" alt="${escapeHtml(p.title)}">` : `<div style="width:100%;height:100%;background:linear-gradient(90deg,var(--accent-soft),#fff);display:flex;align-items:center;justify-content:center;color:var(--primary);">No Image</div>`;
+      const ctaRegister = p.registration_link
+        ? `<a class="btn btn-outline btn-small" href="${escapeHtml(p.registration_link)}" target="_blank" rel="noopener">Register</a>`
+        : `<a class="btn btn-outline btn-small" href="contact.php">Book Now</a>`;
       return `
         <article class="program-card card">
           <div class="thumb">${imageHtml}</div>
@@ -42,6 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <p class="muted" style="margin-top:0.5rem">${escapeHtml(p.summary || '')}</p>
             <div class="program-cta">
               <a class="btn btn-primary btn-small" href="programs/view.php?slug=${encodeURIComponent(p.slug)}">View Details</a>
+              ${ctaRegister}
             </div>
           </div>
         </article>`;
@@ -67,8 +71,14 @@ document.addEventListener("DOMContentLoaded", () => {
       el.addEventListener('click', e => {
         e.preventDefault();
         const slug = el.dataset.slug || '';
-        categoryItems.forEach(i => i.classList.remove('active'));
+        categoryItems.forEach(i => {
+          i.classList.remove('active');
+          i.style.background = '';
+          i.style.color = '';
+        });
         el.classList.add('active');
+        el.style.background = 'var(--primary)';
+        el.style.color = '#fff';
         const sort = (sortSelect && sortSelect.value) || 'latest';
         fetchPrograms(slug, sort);
       });

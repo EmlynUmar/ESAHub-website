@@ -4,11 +4,7 @@ require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/db.php';
 
 if (is_admin_logged_in()) {
-<<<<<<< HEAD:admin/login.php
-    header('Location: ' . url('admin/dashboard.php'));
-=======
     header('Location: ' . base_url('admin/dashboard.php'));
->>>>>>> 2838c9eab5cf35e5591d27b4abb2d047e2be9945:public/admin/login.php
     exit;
 }
 
@@ -16,8 +12,16 @@ $error_message = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $token = $_POST['csrf_token'] ?? '';
-    if (!verify_csrf($token)) {
-        $error_message = 'Invalid request. Please try again.';
+    // Check lockout
+    $attempts = (int)($_SESSION['login_attempts'] ?? 0);
+    $lockoutTime = (int)($_SESSION['login_lockout_time'] ?? 0);
+    $lockoutDuration = 900; // 15 minutes
+
+    if ($attempts >= 5 && (time() - $lockoutTime) < $lockoutDuration) {
+        $minutesLeft = ceil(($lockoutDuration - (time() - $lockoutTime)) / 60);
+        $error_message = "Too many failed login attempts. Please wait {$minutesLeft} minute(s) before trying again.";
+    } elseif (!verify_csrf($token)) {
+        $error_message = 'Invalid request. Please refresh and try again.';
     } else {
         $username = trim($_POST['username'] ?? '');
         $password = $_POST['password'] ?? '';
@@ -27,17 +31,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $admin = $stmt->fetch();
 
         if ($admin && password_verify($password, $admin['password_hash'])) {
+            // Reset lockout and regenerate session ID to prevent fixation
+            unset($_SESSION['login_attempts'], $_SESSION['login_lockout_time']);
+            session_regenerate_id(true);
+
             $_SESSION['admin_id'] = $admin['id'];
             $_SESSION['admin_username'] = $admin['username'];
-<<<<<<< HEAD:admin/login.php
-            header('Location: ' . url('admin/dashboard.php'));
-=======
             header('Location: ' . base_url('admin/dashboard.php'));
->>>>>>> 2838c9eab5cf35e5591d27b4abb2d047e2be9945:public/admin/login.php
             exit;
         }
 
-        $error_message = 'Invalid login credentials.';
+        // Record failed attempt
+        $_SESSION['login_attempts'] = $attempts + 1;
+        if ($_SESSION['login_attempts'] >= 5) {
+            $_SESSION['login_lockout_time'] = time();
+            $error_message = 'Too many failed login attempts. Your account has been temporarily locked for 15 minutes.';
+        } else {
+            $remaining = 5 - $_SESSION['login_attempts'];
+            $error_message = "Invalid login credentials. {$remaining} attempt(s) remaining.";
+        }
     }
 }
 ?>

@@ -10,12 +10,9 @@ if (!is_dir($public_root . '/includes') && is_dir($public_root . '/public/includ
 }
 
 require_once $public_root . '/includes/header.php';
+require_once $public_root . '/includes/db.php';
 
-// PHPMailer (manual install required)
-// Place PHPMailer in: public/vendor/PHPMailer/src/
-// - public/vendor/PHPMailer/src/PHPMailer.php
-// - public/vendor/PHPMailer/src/SMTP.php
-// - public/vendor/PHPMailer/src/Exception.php
+// PHPMailer (manual install optional)
 $phpmailer_candidates = [
     $public_root . '/vendor/PHPMailer/src',
     __DIR__ . '/vendor/PHPMailer/src',
@@ -33,20 +30,13 @@ foreach ($phpmailer_candidates as $candidate) {
     }
 }
 
-if (!$phpmailer_loaded) {
-    $error_message = 'PHPMailer is missing. Please add it to public/vendor/PHPMailer/src/.';
-}
-
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!$phpmailer_loaded) {
-        $error_message = 'Email service is not configured yet. Please try again later.';
-    } else {
     $token = $_POST['csrf_token'] ?? '';
     if (!verify_csrf($token)) {
-        $error_message = 'Invalid form submission. Please try again.';
+        $error_message = 'Invalid form submission. Please refresh the page and try again.';
     } else {
         $name = trim($_POST['name'] ?? '');
         $email = trim($_POST['email'] ?? '');
@@ -58,35 +48,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $error_message = 'Please provide a valid email address.';
         } else {
-            $subject = 'New Contact Form Submission - ESAHub Africa';
-            $body = "Name: {$name}\nEmail: {$email}\nPhone: {$phone}\n\nMessage:\n{$message}";
-            $headers = "From: {$name} <{$email}>";
-
             try {
-                $mail = new PHPMailer(true);
-                $mail->isSMTP();
-                $mail->Host = SMTP_HOST;
-                $mail->SMTPAuth = true;
-                $mail->Username = SMTP_USER;
-                $mail->Password = SMTP_PASS;
-                $mail->SMTPSecure = SMTP_ENCRYPTION;
-                $mail->Port = SMTP_PORT;
+                // Save to database inquiries table
+                $stmt = $pdo->prepare('INSERT INTO inquiries (name, email, phone, message, status, created_at) VALUES (?, ?, ?, ?, "unread", NOW())');
+                $stmt->execute([$name, $email, $phone, $message]);
+                $success_message = 'Thank you for reaching out! We have received your inquiry and will respond shortly.';
 
-                $mail->setFrom(SMTP_FROM, SMTP_FROM_NAME);
-                $mail->addAddress(CONTACT_EMAIL, 'ESAHub Africa');
-                $mail->addReplyTo($email, $name);
+                // Optional SMTP email dispatch if PHPMailer is installed
+                if ($phpmailer_loaded && SMTP_HOST !== 'mail.yourdomain.com') {
+                    try {
+                        $mail = new PHPMailer(true);
+                        $mail->isSMTP();
+                        $mail->Host = SMTP_HOST;
+                        $mail->SMTPAuth = true;
+                        $mail->Username = SMTP_USER;
+                        $mail->Password = SMTP_PASS;
+                        $mail->SMTPSecure = SMTP_ENCRYPTION;
+                        $mail->Port = SMTP_PORT;
 
-                $mail->isHTML(false);
-                $mail->Subject = $subject;
-                $mail->Body = $body;
+                        $mail->setFrom(SMTP_FROM, SMTP_FROM_NAME);
+                        $mail->addAddress(CONTACT_EMAIL, 'ESAHub Africa');
+                        $mail->addReplyTo($email, $name);
 
-                $mail->send();
-                $success_message = 'Thank you for reaching out. We will respond shortly.';
-            } catch (Exception $e) {
-                $error_message = 'Unable to send your message at this time. Please try again later.';
+                        $mail->isHTML(false);
+                        $mail->Subject = 'New Contact Form Submission - ESAHub Africa';
+                        $mail->Body = "Name: {$name}\nEmail: {$email}\nPhone: {$phone}\n\nMessage:\n{$message}";
+
+                        $mail->send();
+                    } catch (Throwable $mailEx) {
+                        error_log('Contact form email dispatch error: ' . $mailEx->getMessage());
+                    }
+                }
+            } catch (Throwable $e) {
+                error_log('Contact form inquiry save error: ' . $e->getMessage());
+                $error_message = 'Unable to submit your message at this time. Please try contacting us directly via phone or email.';
             }
         }
-    }
     }
 }
 ?>

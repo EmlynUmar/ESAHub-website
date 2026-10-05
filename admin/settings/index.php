@@ -59,8 +59,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($name === '') continue;
                 $tmp = $_FILES['hero_images']['tmp_name'][$index];
                 $ext = strtolower(pathinfo($name, PATHINFO_EXTENSION));
-                if (!in_array($ext, ['jpg','jpeg','png','webp','svg'], true)) {
-                    $error_message = 'Only JPG, PNG, WebP, and SVG hero images are allowed.';
+                if (!in_array($ext, ['jpg','jpeg','png','webp'], true) || @getimagesize($tmp) === false) {
+                    $error_message = 'Only valid JPG, PNG, and WebP hero images are allowed.';
                     break;
                 }
 
@@ -109,8 +109,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
+        // Handle optional Admin Password Change
+        $currentPassword = (string)($_POST['current_password'] ?? '');
+        $newPassword = (string)($_POST['new_password'] ?? '');
+        $confirmPassword = (string)($_POST['confirm_password'] ?? '');
+        $passwordNotice = '';
+
+        if ($newPassword !== '') {
+            $adminId = $_SESSION['admin_id'] ?? 0;
+            $adminStmt = $pdo->prepare('SELECT password_hash FROM admins WHERE id = ?');
+            $adminStmt->execute([$adminId]);
+            $adminUser = $adminStmt->fetch();
+
+            if (!$adminUser || !password_verify($currentPassword, $adminUser['password_hash'])) {
+                $error_message = 'Current password is incorrect. Admin password was not changed.';
+            } elseif ($newPassword !== $confirmPassword) {
+                $error_message = 'New passwords do not match.';
+            } elseif (strlen($newPassword) < 8) {
+                $error_message = 'New password must be at least 8 characters long.';
+            } else {
+                $newHash = password_hash($newPassword, PASSWORD_DEFAULT);
+                $updatePass = $pdo->prepare('UPDATE admins SET password_hash = ? WHERE id = ?');
+                $updatePass->execute([$newHash, $adminId]);
+                $passwordNotice = ' Admin password has been updated successfully.';
+            }
+        }
+
         if (empty($error_message)) {
-            $success_message = 'Site settings updated successfully.';
+            $success_message = 'Site settings updated successfully.' . $passwordNotice;
         }
     }
 }
@@ -292,6 +318,25 @@ require_once __DIR__ . '/../../includes/header.php';
                 <div class="form-group">
                     <label for="email">Email</label>
                     <input id="email" name="email" type="email" value="<?= e($email) ?>">
+                </div>
+
+                <hr style="margin: 2rem 0; border: none; border-top: 1px solid #E6EAF0;">
+                <h3 style="margin-bottom: 0.5rem; color: var(--primary);">Security: Change Admin Password</h3>
+                <p style="color: #666; font-size: 0.9rem; margin-bottom: 1.25rem;">Leave blank if you do not wish to change your password.</p>
+
+                <div class="form-group">
+                    <label for="current_password">Current Password</label>
+                    <input id="current_password" name="current_password" type="password" autocomplete="current-password" placeholder="Enter current password">
+                </div>
+
+                <div class="form-group">
+                    <label for="new_password">New Password (minimum 8 characters)</label>
+                    <input id="new_password" name="new_password" type="password" autocomplete="new-password" placeholder="Enter new password">
+                </div>
+
+                <div class="form-group">
+                    <label for="confirm_password">Confirm New Password</label>
+                    <input id="confirm_password" name="confirm_password" type="password" autocomplete="new-password" placeholder="Repeat new password">
                 </div>
 
                 <button class="btn btn-primary" type="submit">Save Settings</button>

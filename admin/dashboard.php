@@ -4,9 +4,9 @@ require_once __DIR__ . '/../includes/header.php';
 require_once __DIR__ . '/../includes/db.php';
 require_admin();
 
-$totalPosts = (int) $pdo->query('SELECT COUNT(*) FROM posts')->fetchColumn();
-$publishedPosts = (int) $pdo->query("SELECT COUNT(*) FROM posts WHERE status = 'published'")->fetchColumn();
-$draftPosts = (int) $pdo->query("SELECT COUNT(*) FROM posts WHERE status = 'draft'")->fetchColumn();
+$totalPosts = (int) $pdo->query('SELECT COUNT(*) FROM blog_posts')->fetchColumn();
+$publishedPosts = (int) $pdo->query("SELECT COUNT(*) FROM blog_posts WHERE status = 'published'")->fetchColumn();
+$draftPosts = (int) $pdo->query("SELECT COUNT(*) FROM blog_posts WHERE status = 'draft'")->fetchColumn();
 
 $totalPrograms = (int) $pdo->query('SELECT COUNT(*) FROM programs')->fetchColumn();
 $activePrograms = (int) $pdo->query("SELECT COUNT(*) FROM programs WHERE is_active = 1")->fetchColumn();
@@ -15,7 +15,10 @@ $inactivePrograms = (int) $pdo->query("SELECT COUNT(*) FROM programs WHERE is_ac
 $totalCategories = (int) $pdo->query('SELECT COUNT(*) FROM categories')->fetchColumn();
 $activeCategories = (int) $pdo->query("SELECT COUNT(*) FROM categories WHERE is_active = 1")->fetchColumn();
 
-$recentPosts = $pdo->query('SELECT id, title, status, created_at FROM posts ORDER BY created_at DESC LIMIT 5')->fetchAll();
+$totalInquiries = (int) $pdo->query('SELECT COUNT(*) FROM inquiries')->fetchColumn();
+$unreadInquiries = (int) $pdo->query("SELECT COUNT(*) FROM inquiries WHERE status = 'unread'")->fetchColumn();
+
+$recentPosts = $pdo->query('SELECT id, title, status, created_at FROM blog_posts ORDER BY created_at DESC LIMIT 5')->fetchAll();
 $recentPrograms = $pdo->query('SELECT p.id, p.title, p.status, p.is_active, c.name AS category_name FROM programs p LEFT JOIN categories c ON c.id = p.category_id ORDER BY p.updated_at DESC LIMIT 5')->fetchAll();
 ?>
 <header>
@@ -54,9 +57,9 @@ $recentPrograms = $pdo->query('SELECT p.id, p.title, p.status, p.is_active, c.na
                 <small><?= $activeCategories ?> active</small>
             </div>
             <div class="metric-card">
-                <span>Quick Actions</span>
-                <strong>4</strong>
-                <small>sections ready</small>
+                <span>Inquiries</span>
+                <strong><?= $totalInquiries ?></strong>
+                <small><?= $unreadInquiries ?> unread messages</small>
             </div>
         </div>
 
@@ -92,6 +95,13 @@ $recentPrograms = $pdo->query('SELECT p.id, p.title, p.status, p.is_active, c.na
                         <div>
                             <strong>Manage Blog Posts</strong>
                             <small>Create and publish blog content</small>
+                        </div>
+                    </a>
+                    <a href="<?= e(url('admin/inquiries.php')) ?>" class="quick-link">
+                        <span class="icon">💬</span>
+                        <div>
+                            <strong>Contact Inquiries</strong>
+                            <small>Review messages and booking requests</small>
                         </div>
                     </a>
                     <a href="<?= e(url('admin/settings/index.php')) ?>" class="quick-link">

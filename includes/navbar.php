@@ -17,6 +17,7 @@ if ($is_admin_page):
         <a href="<?= e(url('admin/create-post.php')) ?>">New Post</a>
         <a href="<?= e(url('admin/programs/index.php')) ?>">Programs</a>
         <a href="<?= e(url('admin/categories/index.php')) ?>">Categories</a>
+        <a href="<?= e(url('admin/inquiries.php')) ?>">Inquiries</a>
         <a href="<?= e(url('admin/settings/index.php')) ?>">Settings</a>
         <a href="<?= e(url('admin/logout.php')) ?>">Logout</a>
     </div>

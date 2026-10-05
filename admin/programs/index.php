@@ -42,7 +42,12 @@ require_once __DIR__ . '/../../includes/header.php';
                                 </form>
                             </td>
                             <td>
-                                <a href="<?= e(url('admin/programs/edit.php?id=' . $p['id'])) ?>">Edit</a>
+                                <a href="<?= e(url('admin/programs/edit.php?id=' . $p['id'])) ?>" style="color:var(--accent); font-weight:600; margin-right:0.75rem;">Edit</a>
+                                <form method="post" action="<?= e(url('admin/programs/delete.php')) ?>" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this program?');">
+                                    <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
+                                    <input type="hidden" name="id" value="<?= (int)$p['id'] ?>">
+                                    <button type="submit" style="background:none;border:none;color:#c84e3a;font-weight:600;cursor:pointer;padding:0;">Delete</button>
+                                </form>
                             </td>
                         </tr>
                     <?php endforeach; ?>

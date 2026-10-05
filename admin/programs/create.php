@@ -68,13 +68,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($canUseWhatsappPrefill) { $insertCols[] = 'whatsapp_prefill'; $insertVals[] = $whatsappPrefill; }
                 if ($canUseRegistrationLink) { $insertCols[] = 'registration_link'; $insertVals[] = $registrationLink; }
 
+                $placeholders = array_fill(0, count($insertVals), '?');
                 $insertCols[] = 'created_at';
-                $insertVals[] = 'NOW()';
+                $placeholders[] = 'NOW()';
                 $insertCols[] = 'updated_at';
-                $insertVals[] = 'NOW()';
+                $placeholders[] = 'NOW()';
 
-                $placeholders = implode(', ', array_fill(0, count($insertVals), '?'));
-                $stmt = $pdo->prepare('INSERT INTO programs (' . implode(', ', $insertCols) . ') VALUES (' . $placeholders . ')');
+                $stmt = $pdo->prepare('INSERT INTO programs (' . implode(', ', $insertCols) . ') VALUES (' . implode(', ', $placeholders) . ')');
                 $stmt->execute($insertVals);
                 header('Location: ' . url('admin/programs/index.php')); exit;
             }

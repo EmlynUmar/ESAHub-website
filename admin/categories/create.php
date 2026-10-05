@@ -20,18 +20,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $image_name = null;
         if ($canUseFeaturedImage && !empty($_FILES['featured_image']['name'])) {
-            $allowed = ['jpg','jpeg','png','webp','svg'];
+            $allowed = ['jpg','jpeg','png','webp'];
             $ext = strtolower(pathinfo($_FILES['featured_image']['name'], PATHINFO_EXTENSION));
-            if (in_array($ext, $allowed, true)) {
+            $tmpPath = $_FILES['featured_image']['tmp_name'];
+            if (in_array($ext, $allowed, true) && @getimagesize($tmpPath) !== false) {
                 $uploadDir = __DIR__ . '/../../assets/images/uploads';
                 if (!is_dir($uploadDir)) { mkdir($uploadDir, 0777, true); }
                 $image_name = uniqid('cat_', true) . '.' . $ext;
                 $destination = $uploadDir . '/' . $image_name;
-                if (!move_uploaded_file($_FILES['featured_image']['tmp_name'], $destination)) {
+                if (!move_uploaded_file($tmpPath, $destination)) {
                     $errors[] = 'Failed to upload category image.';
                 }
             } else {
-                $errors[] = 'Invalid image format.';
+                $errors[] = 'Invalid image format. Allowed formats: JPG, PNG, WebP.';
             }
         }
 

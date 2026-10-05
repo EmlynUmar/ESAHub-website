@@ -27,18 +27,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $image_name = $cat['featured_image'] ?? null;
         if ($canUseFeaturedImage && !empty($_FILES['featured_image']['name'])) {
-            $allowed = ['jpg','jpeg','png','webp','svg'];
+            $allowed = ['jpg','jpeg','png','webp'];
             $ext = strtolower(pathinfo($_FILES['featured_image']['name'], PATHINFO_EXTENSION));
-            if (in_array($ext, $allowed, true)) {
+            $tmpPath = $_FILES['featured_image']['tmp_name'];
+            if (in_array($ext, $allowed, true) && @getimagesize($tmpPath) !== false) {
                 $uploadDir = __DIR__ . '/../../assets/images/uploads';
                 if (!is_dir($uploadDir)) { mkdir($uploadDir, 0777, true); }
-                $image_name = uniqid('cat_', true) . '.' . $ext;
-                $destination = $uploadDir . '/' . $image_name;
-                if (!move_uploaded_file($_FILES['featured_image']['tmp_name'], $destination)) {
+                $newImage = uniqid('cat_', true) . '.' . $ext;
+                $destination = $uploadDir . '/' . $newImage;
+                if (move_uploaded_file($tmpPath, $destination)) {
+                    // Clean up old category image if exists
+                    if (!empty($cat['featured_image'])) {
+                        $oldImg = $uploadDir . '/' . basename($cat['featured_image']);
+                        if (is_file($oldImg)) { @unlink($oldImg); }
+                    }
+                    $image_name = $newImage;
+                } else {
                     $errors[] = 'Failed to upload category image.';
                 }
             } else {
-                $errors[] = 'Invalid image format.';
+                $errors[] = 'Invalid image format. Allowed formats: JPG, PNG, WebP.';
             }
         }
 
