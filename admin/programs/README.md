@@ -1,0 +1,1 @@
+This folder is intentionally empty in this workspace copy. The public admin program pages are in the main `admin/` folder in the repository root. If you need to add program management pages here for the public admin area, create `index.php`, `create.php`, `edit.php`, and `delete.php` files and require `../includes/functions.php` and `../includes/db.php` accordingly.

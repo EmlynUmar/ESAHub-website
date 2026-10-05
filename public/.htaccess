@@ -1,7 +1,0 @@
-<IfModule mod_rewrite.c>
-    RewriteEngine On
-    RewriteBase /
-
-    # Redirect /blog/{slug} to blog post handler
-    RewriteRule ^blog/([A-Za-z0-9-]+)/?$ /blog/post.php?slug=$1 [L,QSA]
-</IfModule>

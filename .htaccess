@@ -1,0 +1,10 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # Disable directory listing for folders like /admin
+    Options -Indexes
+
+    # Redirect /blog/{slug} to blog post handler
+    RewriteRule ^blog/([A-Za-z0-9-]+)/?$ /ESAHub-website/blog/post.php?slug=$1 [L,QSA]
+</IfModule>
