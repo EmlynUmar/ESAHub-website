@@ -13,5 +13,6 @@ try {
         PDO::ATTR_EMULATE_PREPARES => false,
     ]);
 } catch (PDOException $exception) {
-    die('Database connection failed.');
+    error_log('Database connection error: ' . $exception->getMessage());
+    die('Database connection failed. Please contact the site administrator.');
 }

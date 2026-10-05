@@ -3,7 +3,24 @@
 
 declare(strict_types=1);
 
+// Production error handling: log errors silently without leaking system details
+ini_set('display_errors', '0');
+ini_set('log_errors', '1');
+error_reporting(E_ALL);
+
+// Secure session configuration
 if (session_status() === PHP_SESSION_NONE) {
+    ini_set('session.use_only_cookies', '1');
+    ini_set('session.cookie_httponly', '1');
+    $isHttps = isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] === 'on' || $_SERVER['HTTPS'] === '1');
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path' => '/',
+        'domain' => '',
+        'secure' => $isHttps,
+        'httponly' => true,
+        'samesite' => 'Lax'
+    ]);
     session_start();
 }
 
@@ -32,11 +49,11 @@ define('SMTP_ENCRYPTION', 'tls'); // 'tls' or 'ssl'
 define('SMTP_FROM', 'contact@yourdomain.com');
 define('SMTP_FROM_NAME', 'ESAHub Africa');
 
-// Database credentials - update for production.
-const DB_HOST = 'localhost';
-const DB_NAME = 'esahub';
-const DB_USER = 'root';
-const DB_PASS = '';
+// Database credentials - supports environment variables or direct editing.
+define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
+define('DB_NAME', getenv('DB_NAME') ?: 'esahub');
+define('DB_USER', getenv('DB_USER') ?: 'root');
+define('DB_PASS', getenv('DB_PASS') !== false ? getenv('DB_PASS') : '');
 
 function is_admin_logged_in(): bool
 {

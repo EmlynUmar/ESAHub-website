@@ -1,10 +1,30 @@
+# Disable directory indexing
+Options -Indexes
+
+# Prevent direct access to sensitive files
+<FilesMatch "\.(sql|env|git|log|md|bak|swp)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# Security HTTP response headers
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# URL Rewriting
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    RewriteBase /
 
-    # Disable directory listing for folders like /admin
-    Options -Indexes
-
-    # Redirect /blog/{slug} to blog post handler
-    RewriteRule ^blog/([A-Za-z0-9-]+)/?$ /ESAHub-website/blog/post.php?slug=$1 [L,QSA]
+    # Clean URL rewrites (relative so it works on root domain or local subfolders)
+    RewriteRule ^blog/([A-Za-z0-9-]+)/?$ blog/post.php?slug=$1 [L,QSA]
+    RewriteRule ^programs/([A-Za-z0-9-]+)/?$ programs/view.php?slug=$1 [L,QSA]
 </IfModule>
