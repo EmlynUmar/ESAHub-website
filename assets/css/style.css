@@ -91,9 +91,10 @@ header {
   width: 52px;
   height: 52px;
   object-fit: contain;
-  border-radius: 12px;
-  background: rgba(26, 166, 200, 0.06);
-  padding: 0.25rem;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(7, 43, 59, 0.08);
+  padding: 0.2rem;
 }
 
 .brand-text {
